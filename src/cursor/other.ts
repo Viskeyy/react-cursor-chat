@@ -21,7 +21,7 @@ export default class Other extends Cursor {
         y: number;
         name?: string;
         avatar?: string;
-        color: string;
+        color?: string;
     }) {
         super(id, x, y, name, avatar, color);
     }

@@ -22,7 +22,7 @@ export default class Me extends Cursor {
         y: number;
         name?: string;
         avatar?: string;
-        color: string;
+        color?: string;
     }) {
         super(id, x, y, name, avatar, color);
         this.subscription = this.subscribeMousemove();

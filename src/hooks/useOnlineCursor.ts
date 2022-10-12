@@ -25,6 +25,7 @@ const useOnlineCursor = ({
     const [otherMap, setOtherMap] = useState<Map<string, Other>>(
         new Map<string, Other>()
     );
+    const [others, setOthers] = useState<Array<Other>>([]);
 
     useEffect(() => {
         const ID = uuidv4();
@@ -114,11 +115,9 @@ const useOnlineCursor = ({
         };
     }, [room]);
 
-    const others: Other[] = [];
-
-    otherMap.forEach(value => {
-        others.push(value);
-    });
+    useEffect(()=>{
+        setOthers(Array.from(otherMap.values()));
+    }, [otherMap])
 
     return { me, others };
 };
