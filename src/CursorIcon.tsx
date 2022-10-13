@@ -11,8 +11,8 @@ function CursorIcon({ color }: { color: string }) {
                 xmlns="http://www.w3.org/2000/svg"
             >
                 <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M0 0L20 7.14286L11.0948 11.1194L7.14286 20L0 0Z"
                 />
             </svg>
