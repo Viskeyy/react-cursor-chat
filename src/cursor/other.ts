@@ -73,7 +73,7 @@ export default class Other extends Cursor {
             .on$<MovementMessage>('leave')
             .pipe(filter(data => data.id === this.id))
             .subscribe(() => {
-                this.onLeave();
+                this.onLeave(this.id);
             });
     }
 
@@ -82,15 +82,17 @@ export default class Other extends Cursor {
             .on$<MovementMessage>('enter')
             .pipe(filter(data => data.id === this.id))
             .subscribe(() => {
-                this.onEnter();
+                this.onEnter(this.id);
             });
     }
 
-    onLeave() {
+    // @ts-ignore
+    onLeave(id: string) {
         throw new Error('Method not implemented.');
     }
 
-    onEnter() {
+    // @ts-ignore
+    onEnter(id: string) {
         throw new Error('Method not implemented.');
     }
 }

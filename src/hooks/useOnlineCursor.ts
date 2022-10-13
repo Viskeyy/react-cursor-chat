@@ -13,6 +13,8 @@ const useOnlineCursor = ({
     name,
     avatar,
     color,
+    onOtherEntry = () => {},
+    onOtherLeave = () => {},
 }: {
     presenceURL: string;
     presenceAuthEndpoint: string;
@@ -20,6 +22,8 @@ const useOnlineCursor = ({
     name?: string;
     avatar?: string;
     color?: string;
+    onOtherEntry?: () => void;
+    onOtherLeave?: () => void;
 }) => {
     const [me, setMe] = useState<Me | null>(null);
     const [otherMap, setOtherMap] = useState<Map<string, Other>>(
@@ -62,6 +66,8 @@ const useOnlineCursor = ({
                         }
                         const cursorMap = new Map(old);
                         const other = new Other(data);
+                        other.onLeave = onOtherLeave;
+                        other.onEnter = onOtherEntry;
                         other.goOnline(yomo);
                         cursorMap.set(other.id, other);
                         return cursorMap;
@@ -91,6 +97,8 @@ const useOnlineCursor = ({
                         }
                         const cursorMap = new Map(old);
                         const other = new Other(data);
+                        other.onLeave = onOtherLeave;
+                        other.onEnter = onOtherEntry;
                         other.goOnline(yomo);
                         cursorMap.set(other.id, other);
                         return cursorMap;
@@ -115,9 +123,9 @@ const useOnlineCursor = ({
         };
     }, [room]);
 
-    useEffect(()=>{
+    useEffect(() => {
         setOthers(Array.from(otherMap.values()));
-    }, [otherMap])
+    }, [otherMap]);
 
     return { me, others };
 };
