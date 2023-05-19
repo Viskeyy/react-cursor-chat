@@ -32,6 +32,13 @@ $ pnpm add @yomo/react-cursor-chat @yomo/presence
 
 ### Integrate to your project
 
+create `.env` with: 
+
+```text
+NEXT_PUBLIC_PRESENCE_URL=https://lo.yomo.dev:8443/v1
+NEXT_PUBLIC_PRESENCE_PUBLIC_KEY=YOUR_PK
+```
+
 ```javascript
 import { createPresence } from "@yomo/presence";
 import CursorChat from "@yomo/react-cursor-chat";
@@ -43,12 +50,14 @@ const user = {
   avatar: "https://i.pravatar.cc/150?img=3",
 };
 
-let url = env.NEXT_PUBLIC_PRESENCE_URL || "https://lo.yomo.dev:8443/v1";
-const presence = createPresence(url, {
-  publicKey: env.NEXT_PUBLIC_PRESENCE_PUBLIC_KEY,
-  id: user.ID,
-  autoDowngrade: true, // downgrade to websocket automatically if webTransport not work
-});
+const presence = createPresence(
+  process.env.NEXT_PUBLIC_PRESENCE_URL, 
+  {
+    publicKey: process.env.NEXT_PUBLIC_PRESENCE_PUBLIC_KEY,
+    id: user.ID,
+    autoDowngrade: true, // downgrade to websocket automatically if webTransport not work
+  }
+);
 
 const App = () => {
   return (
