@@ -24,11 +24,15 @@ const CursorChatCtx = createContext<{
   self: ICursor;
 } | null>(null);
 
-export default function CursorChat(
-  props: CursorChatProps & typeof CursorChatDefaultProps,
-) {
-  const { id, color } = props;
-
+export default function CursorChat({
+  id,
+  color = getRandomColor(),
+  name = "visitor",
+  avatar,
+  latency,
+  region,
+  presence,
+}: CursorChatProps) {
   // initialize the cursor state
   const [myState, setMyState] = useState<ICursor>({
     id,
@@ -37,10 +41,10 @@ export default function CursorChat(
     x: 0,
     y: 0,
     message: "",
-    name: props.name || "visitor",
-    avatar: props.avatar,
-    latency: props.latency,
-    region: props.region,
+    name,
+    avatar,
+    latency,
+    region,
   });
 
   // initialize other cursors state
@@ -49,35 +53,61 @@ export default function CursorChat(
   const [connected, setConnected] = useState(false);
   const [channel, setChannel] = useState<IChannel | null>(null);
 
+  // #region initialize the presence connection
   useEffect(() => {
     let channel: IChannel | null = null;
-    let unsubscribe: Function | null = null;
 
-    props.presence.then((yomo) => {
+    presence.then((yomo) => {
       channel = yomo.joinChannel("live-cursor", myState);
-
-      // listen to other cursors state change
-      const updateStateHandler = ({ payload }: { payload: ICursor }) => {
-        const others = otherCursors.filter((c) => c.id !== payload.id);
-        setOtherCursors([...others, payload]);
-      };
-
-      unsubscribe = channel.subscribe("update-state", updateStateHandler);
-
       setConnected(true);
       setChannel(channel);
-
       // hidden user cursor only connected to prscd
       document.body.style.cursor = "none";
     });
 
     return () => {
       // unsubscribe from the channel
-      unsubscribe?.();
       channel?.leave();
     };
   }, []);
+  // #endregion
 
+  // #region initialize the cursor state
+  useEffect(() => {
+    if (!channel) {
+      return;
+    }
+    // listen to other cursors join
+    const unsubscribePeers = channel.subscribePeers((peers) => {
+      setOtherCursors([...(peers as ICursor[])]);
+    });
+
+    return () => {
+      unsubscribePeers();
+    };
+  }, [channel]);
+  // #endregion
+
+  // #region add event listeners to update the cursor state
+  useEffect(() => {
+    if (!channel) {
+      return;
+    }
+
+    // listen to other cursors state change
+    const updateStateHandler = ({ payload }: { payload: ICursor }) => {
+      const others = otherCursors.filter((c) => c.id !== payload.id);
+      setOtherCursors([...others, payload]);
+    };
+
+    const unsubscribe = channel.subscribe("update-state", updateStateHandler);
+    return () => {
+      unsubscribe?.();
+    };
+  }, [channel, otherCursors]);
+  // #endregion
+
+  // #region add event listeners to update the cursor visibility
   useEffect(() => {
     if (!channel) {
       return;
@@ -88,30 +118,21 @@ export default function CursorChat(
         ...myState,
         state: document.hidden ? "away" : "online",
       };
-      console.log("update state", newState);
 
       channel?.broadcast("update-state", newState);
       setMyState(newState);
     };
     document.addEventListener("visibilitychange", visibilitychangeHandler);
 
-    // listen to other cursors join and leave
-    const unsubscribePeers = channel.subscribePeers((peers) => {
-      setOtherCursors([...(peers as ICursor[])]);
-      if (peers.length > 0) {
-        channel?.broadcast("update-state", myState);
-      }
-    });
-
     return () => {
       // remove listeners
       document.removeEventListener("visibilitychange", visibilitychangeHandler);
-      unsubscribePeers();
     };
-  }, [channel, myState]);
+  }, [channel, otherCursors, myState]);
+  // #endregion
 
+  // #region add event listeners to update the cursor message
   const [typing, setTyping] = useState(false);
-
   useEffect(() => {
     // use requestAnimationFrame to throttle the mousemove event
     let needForRAF = true;
@@ -145,7 +166,6 @@ export default function CursorChat(
       document.removeEventListener("mousemove", mousemoveHandler);
     };
   }, [myState, channel]);
-
   useEffect(() => {
     const keydownHandler = (e: KeyboardEvent) => {
       if (e.key === "/" || e.key === "Slash") {
@@ -171,9 +191,31 @@ export default function CursorChat(
     channel?.broadcast("update-state", newState);
     setMyState(newState);
   };
+  // #endregion
+
+  // #region sync the cursor state to peers
+  useEffect(() => {
+    if (!channel) {
+      return;
+    }
+    // sync the cursor state to peers
+    const unsubscribePeers = channel.subscribePeers(() => {
+      channel.broadcast("update-state", myState);
+    });
+
+    return () => {
+      unsubscribePeers();
+    };
+  }, [channel, myState]);
+  // #endregion
+
+  // if in SSR, do nothing
+  if (typeof window === "undefined") {
+    return null;
+  }
 
   if (!connected) {
-    return <div></div>;
+    return null;
   }
 
   return (
@@ -225,12 +267,6 @@ function OtherCursors() {
     </>
   );
 }
-
-export const CursorChatDefaultProps = {
-  color: getRandomColor(),
-};
-
-CursorChat.defaultProps = CursorChatDefaultProps;
 
 function Cursor({
   x,

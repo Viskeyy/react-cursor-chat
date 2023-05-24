@@ -32,49 +32,71 @@ $ pnpm add @yomo/react-cursor-chat @yomo/presence
 
 ### Integrate to your project
 
-create `.env` with: 
+create `.env` with:
 
 ```text
 NEXT_PUBLIC_PRESENCE_URL=https://lo.yomo.dev:8443/v1
 NEXT_PUBLIC_PRESENCE_PUBLIC_KEY=YOUR_PK
 ```
 
+If you use nextjs, you can use this example:
+
 ```javascript
-import { createPresence } from "@yomo/presence";
+"use client";
+
+import { createPresence, IPresence } from "@yomo/presence";
 import CursorChat from "@yomo/react-cursor-chat";
 import "@yomo/react-cursor-chat/dist/style.css";
-
-const user = {
-  ID: "spiderman",
-  Name: "Peter Parker",
-  avatar: "https://i.pravatar.cc/150?img=3",
-};
-
-const presence = createPresence(
-  process.env.NEXT_PUBLIC_PRESENCE_URL, 
-  {
-    publicKey: process.env.NEXT_PUBLIC_PRESENCE_PUBLIC_KEY,
-    id: user.ID,
-    autoDowngrade: true, // downgrade to websocket automatically if webTransport not work
-  }
-);
+import { useEffect, useState } from "react";
 
 const App = () => {
+  const user = {
+    id: Math.random().toString(36).substring(7), // random id (e.g. 5b3f1e)
+    name: "Peter Parker",
+    avatar: "https://i.pravatar.cc/150?img=3",
+  };
+  const [presence, setPresence] = useState<Promise<IPresence> | null>(null);
+  useEffect(() => {
+    (async () => {
+      let url =
+        process.env.NEXT_PUBLIC_PRESENCE_URL || "https://lo.yomo.dev:8443/v1";
+      const presence = createPresence(url, {
+        publicKey: process.env.NEXT_PUBLIC_PRESENCE_PUBLIC_KEY,
+        id: user.id,
+        autoDowngrade: true, // downgrade to websocket automatically if webTransport not work
+      });
+      setPresence(presence);
+    })();
+  }, []);
+
+  if (!presence) return <div>Loading...</div>;
+
   return (
     <div className="main">
-      <img className="logo" src={logo} alt="logo" />
       <p className="tips">
         Press <span>/</span> to bring up the input box <br /> Press{" "}
         <span>ESC</span> to close the input box
       </p>
       <CursorChat
         presence={presence}
-        id={user.ID}
-        name={user.Name}
+        id={user.id}
+        name={user.name}
         avatar={user.avatar}
       />
     </div>
   );
+};
+
+export default App;
+```
+
+Be sure to disable React's reactStrictMode to avoid potential issues. In React, you can disable it by removing the <React.StrictMode> component from the root file.
+
+In Next.js, you can disable the strict mode by modifying the `next.config.js` file. To do so, add the following configuration:
+
+```javascript
+const nextConfig = {
+  reactStrictMode: false,
 };
 ```
 
