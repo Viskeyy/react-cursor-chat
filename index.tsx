@@ -33,6 +33,7 @@ export default function CursorChat({
   region,
   presence,
 }: CursorChatProps) {
+  // #region define the cursor state
   // initialize the cursor state
   const [myState, setMyState] = useState<ICursor>({
     id,
@@ -52,6 +53,7 @@ export default function CursorChat({
   // initialize the connection state
   const [connected, setConnected] = useState(false);
   const [channel, setChannel] = useState<IChannel | null>(null);
+  // #endregion
 
   // #region initialize the presence connection
   useEffect(() => {
@@ -207,6 +209,16 @@ export default function CursorChat({
       unsubscribePeers();
     };
   }, [channel, myState]);
+  // #endregion
+
+  // #region hide the cursor default style
+  useEffect(() => {
+    document.body.style.cursor = "none";
+
+    return () => {
+      document.body.style.cursor = "auto";
+    };
+  }, []);
   // #endregion
 
   // if in SSR, do nothing

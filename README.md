@@ -72,11 +72,7 @@ const App = () => {
   if (!presence) return <div>Loading...</div>;
 
   return (
-    <div className="main">
-      <p className="tips">
-        Press <span>/</span> to bring up the input box <br /> Press{" "}
-        <span>ESC</span> to close the input box
-      </p>
+    <div>
       <CursorChat
         presence={presence}
         id={user.id}
