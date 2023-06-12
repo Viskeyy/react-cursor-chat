@@ -42,9 +42,36 @@ export interface CursorChatProps {
   avatar?: string;
   name?: string;
   state?: "online" | "away";
-  color?: string;
   region?: string;
   latency?: number;
+  // custom style
+  color: string;
+  cursorSize?: string;
+  cursorImage?: string;
+  bubbleBorderRadius?: string;
+  bubbleBorderTopLeftRadius?: string;
+  bubbleBorderTopRightRadius?: string;
+  bubbleBorderBottomLeftRadius?: string;
+  bubbleBorderBottomRightRadius?: string;
+  avatarBorderRadius?: string;
+  avatarBorderTopLeftRadius?: string;
+  avatarBorderTopRightRadius?: string;
+  avatarBorderBottomLeftRadius?: string;
+  avatarBorderBottomRightRadius?: string;
+  bubbleBackgroundColor?: string;
+  bubbleFontColor?: string;
+  inputTextStyle?: React.CSSProperties;
+  inputBorderRadius?: string;
+  inputBorderTopLeftRadius?: string;
+  inputBorderTopRightRadius?: string;
+  inputBorderBottomLeftRadius?: string;
+  inputBorderBottomRightRadius?: string;
+  children?: ({
+    x, y
+  }:{
+    x: number;
+    y: number;
+  }) => JSX.Element;
 }
 
 export type State = "online" | "away";
@@ -55,11 +82,38 @@ export interface Cursor {
   name?: string;
   message?: string;
   state?: State;
-  color: string;
   region?: string;
   latency?: number;
   x: number;
   y: number;
+  // custom style
+  color: string;
+  cursorSize?: string;
+  cursorImage?: string;
+  bubbleBorderRadius?: string;
+  bubbleBorderTopLeftRadius?: string;
+  bubbleBorderTopRightRadius?: string;
+  bubbleBorderBottomLeftRadius?: string;
+  bubbleBorderBottomRightRadius?: string;
+  avatarBorderRadius?: string;
+  avatarBorderTopLeftRadius?: string;
+  avatarBorderTopRightRadius?: string;
+  avatarBorderBottomLeftRadius?: string;
+  avatarBorderBottomRightRadius?: string;
+  bubbleBackgroundColor?: string;
+  bubbleFontColor?: string;
+  inputTextStyle?: React.CSSProperties;
+  inputBorderRadius?: string;
+  inputBorderTopLeftRadius?: string;
+  inputBorderTopRightRadius?: string;
+  inputBorderBottomLeftRadius?: string;
+  inputBorderBottomRightRadius?: string;
+  children?: ({
+    x, y
+  }:{
+    x: number;
+    y: number;
+  }) => JSX.Element;
 }
 
 declare const CursorChat: (props: CursorChatProps) => JSX.Element;

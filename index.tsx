@@ -22,6 +22,7 @@ function getRandomColor() {
 const CursorChatCtx = createContext<{
   others: ICursor[];
   self: ICursor;
+  props: any;
 } | null>(null);
 
 export default function CursorChat({
@@ -32,6 +33,7 @@ export default function CursorChat({
   latency,
   region,
   presence,
+  ...props
 }: CursorChatProps) {
   // #region define the cursor state
   // initialize the cursor state
@@ -213,12 +215,15 @@ export default function CursorChat({
 
   // #region hide the cursor default style
   useEffect(() => {
+    if (!channel) {
+      return;
+    }
     document.body.style.cursor = "none";
 
     return () => {
       document.body.style.cursor = "auto";
     };
-  }, []);
+  }, [channel]);
   // #endregion
 
   // if in SSR, do nothing
@@ -235,6 +240,7 @@ export default function CursorChat({
       value={{
         others: otherCursors,
         self: myState,
+        props,
       }}
     >
       <Cursor
@@ -248,6 +254,7 @@ export default function CursorChat({
         latency={myState.latency}
         region={myState.region}
         onMessageChange={onMessageChange}
+        {...props}
       />
       <OtherCursors />
     </CursorChatCtx.Provider>
@@ -259,7 +266,7 @@ function OtherCursors() {
   if (!ctx) {
     return null;
   }
-  const { others: cursors } = ctx;
+  const { others: cursors, props } = ctx;
   return (
     <>
       {cursors.map((c) => (
@@ -274,6 +281,7 @@ function OtherCursors() {
           region={c.region}
           message={c.message}
           state={c.state}
+          {...props}
         />
       ))}
     </>
@@ -292,6 +300,27 @@ function Cursor({
   state,
   typing = false,
   onMessageChange,
+  cursorSize = "20",
+  cursorImage,
+  bubbleBorderRadius = "18px",
+  bubbleBorderTopLeftRadius = "",
+  bubbleBorderTopRightRadius = "",
+  bubbleBorderBottomLeftRadius = "",
+  bubbleBorderBottomRightRadius = "",
+  avatarBorderRadius = "12px",
+  avatarBorderTopLeftRadius,
+  avatarBorderTopRightRadius,
+  avatarBorderBottomLeftRadius,
+  avatarBorderBottomRightRadius,
+  bubbleBackgroundColor,
+  bubbleFontColor,
+  inputTextStyle,
+  inputBorderRadius = "",
+  inputBorderTopLeftRadius = "2px",
+  inputBorderTopRightRadius = "20px",
+  inputBorderBottomLeftRadius = "31px",
+  inputBorderBottomRightRadius = "20px",
+  children,
 }: {
   x: number;
   y: number;
@@ -304,7 +333,36 @@ function Cursor({
   state?: State;
   typing?: boolean;
   onMessageChange?: (message: string) => void;
+  cursorSize?: string;
+  cursorImage?: string;
+  bubbleBorderRadius?: string;
+  bubbleBorderTopLeftRadius?: string;
+  bubbleBorderTopRightRadius?: string;
+  bubbleBorderBottomLeftRadius?: string;
+  bubbleBorderBottomRightRadius?: string;
+  avatarBorderRadius?: string;
+  avatarBorderTopLeftRadius?: string;
+  avatarBorderTopRightRadius?: string;
+  avatarBorderBottomLeftRadius?: string;
+  avatarBorderBottomRightRadius?: string;
+  bubbleBackgroundColor?: string;
+  bubbleFontColor?: string;
+  inputTextStyle?: React.CSSProperties;
+  inputBorderRadius?: string;
+  inputBorderTopLeftRadius?: string;
+  inputBorderTopRightRadius?: string;
+  inputBorderBottomLeftRadius?: string;
+  inputBorderBottomRightRadius?: string;
+  children?: ({
+    x, y
+  }:{
+    x: number;
+    y: number;
+  }) => JSX.Element;
 }) {
+  if(children) {
+    return children({x, y});
+  }
   return (
     <div
       style={{
@@ -323,70 +381,31 @@ function Cursor({
         opacity: state === "away" ? 0.5 : 1,
       }}
     >
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 23 23"
-        fill={color}
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <g filter="url(#filter0_d_142_54)">
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M2.71004 1.98812C2.42625 1.1935 3.1935 0.426251 3.98812 0.710044L19.6524 6.30442C20.5016 6.60771 20.5472 7.7916 19.7238 8.15927L13.4448 10.9631C13.2194 11.0637 13.0393 11.2441 12.9389 11.4696L10.1582 17.7183C9.79136 18.5427 8.60637 18.4978 8.30287 17.648L2.71004 1.98812Z"
-            fill={color}
-          />
-          <path
-            d="M3.18091 1.81995C3.03902 1.42264 3.42264 1.03902 3.81995 1.18091L19.4842 6.77529C19.9088 6.92694 19.9316 7.51888 19.5199 7.70272L13.2409 10.5065C12.9029 10.6574 12.6326 10.9281 12.4821 11.2663L9.70142 17.515C9.51799 17.9272 8.92549 17.9048 8.77374 17.4799L3.18091 1.81995Z"
-            stroke="white"
-          />
-        </g>
-        <defs>
-          <filter
-            id="filter0_d_142_54"
-            x="0.64978"
-            y="0.649767"
-            width="21.6663"
-            height="21.662"
-            filterUnits="userSpaceOnUse"
-            colorInterpolationFilters="sRGB"
-          >
-            <feFlood floodOpacity="0" result="BackgroundImageFix" />
-            <feColorMatrix
-              in="SourceAlpha"
-              type="matrix"
-              values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-              result="hardAlpha"
-            />
-            <feOffset dy="2" />
-            <feGaussianBlur stdDeviation="1" />
-            <feColorMatrix
-              type="matrix"
-              values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"
-            />
-            <feBlend
-              mode="normal"
-              in2="BackgroundImageFix"
-              result="effect1_dropShadow_142_54"
-            />
-            <feBlend
-              mode="normal"
-              in="SourceGraphic"
-              in2="effect1_dropShadow_142_54"
-              result="shape"
-            />
-          </filter>
-        </defs>
-      </svg>
+      {cursorImage || (
+        <DefaultCursorImage color={color} cursorSize={cursorSize} />
+      )}
       <div
         style={{
-          backgroundColor: color,
-          borderRadius: message || typing ? "2px 31px 31px 20px" : "18px",
+          backgroundColor: bubbleBackgroundColor || color,
+          borderRadius:
+            message || typing
+              ? `
+              ${inputBorderTopLeftRadius || inputBorderRadius || "2px"}
+              ${inputBorderTopRightRadius || inputBorderRadius || "20px"}
+              ${inputBorderBottomRightRadius || inputBorderRadius || "31px"}
+              ${inputBorderBottomLeftRadius || inputBorderRadius || "20px"}
+            `
+              : `
+            ${bubbleBorderTopLeftRadius || bubbleBorderRadius || "18px"}
+            ${bubbleBorderTopRightRadius || bubbleBorderRadius || "18px"}
+            ${bubbleBorderBottomRightRadius || bubbleBorderRadius || "18px"}
+            ${bubbleBorderBottomLeftRadius || bubbleBorderRadius || "18px"}
+            `,
           padding: message || typing ? "10px 20px" : "6px",
           wordWrap: "break-word",
+          color: bubbleFontColor || "#fff",
         }}
-        className="ml-[20px] text-white"
+        className="ml-[20px]"
       >
         <div className="text-[12px] flex gap-1">
           {(avatar || name) && (
@@ -397,7 +416,30 @@ function Cursor({
               }}
             >
               {avatar && (
-                <img src={avatar} className="w-6 h-6 rounded-[12px]" />
+                <img
+                  src={avatar}
+                  className="w-6 h-6"
+                  style={{
+                    borderRadius: `
+                        ${avatarBorderTopLeftRadius ||
+                      avatarBorderRadius ||
+                      "12px"
+                      }
+                        ${avatarBorderTopRightRadius ||
+                      avatarBorderRadius ||
+                      "12px"
+                      }
+                        ${avatarBorderBottomRightRadius ||
+                      avatarBorderRadius ||
+                      "12px"
+                      }
+                        ${avatarBorderBottomLeftRadius ||
+                      avatarBorderRadius ||
+                      "12px"
+                      }
+                      `,
+                  }}
+                />
               )}
               {name && <div className="py-[2px] px-1.5">{name}</div>}
             </div>
@@ -420,6 +462,7 @@ function Cursor({
           <input
             autoFocus
             className="bg-transparent border-none outline-none placeholder:text-[rgba(255,255,255,0.6)]"
+            style={inputTextStyle}
             value={message}
             onInput={(e) => onMessageChange?.((e.target as any).value)}
             placeholder="Say something"
@@ -450,6 +493,73 @@ function LatencyIcon() {
         d="M5 6.5C4.72386 6.5 4.5 6.27614 4.5 6V5.5H7C7.27614 5.5 7.5 5.72386 7.5 6C7.5 6.27614 7.27614 6.5 7 6.5H5Z"
         fill="white"
       />
+    </svg>
+  );
+}
+
+function DefaultCursorImage({
+  cursorSize,
+  color,
+}: {
+  cursorSize: string;
+  color: string;
+}) {
+  return (
+    <svg
+      width={cursorSize}
+      height={cursorSize}
+      viewBox="0 0 23 23"
+      fill={color}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g filter="url(#filter0_d_142_54)">
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M2.71004 1.98812C2.42625 1.1935 3.1935 0.426251 3.98812 0.710044L19.6524 6.30442C20.5016 6.60771 20.5472 7.7916 19.7238 8.15927L13.4448 10.9631C13.2194 11.0637 13.0393 11.2441 12.9389 11.4696L10.1582 17.7183C9.79136 18.5427 8.60637 18.4978 8.30287 17.648L2.71004 1.98812Z"
+          fill={color}
+        />
+        <path
+          d="M3.18091 1.81995C3.03902 1.42264 3.42264 1.03902 3.81995 1.18091L19.4842 6.77529C19.9088 6.92694 19.9316 7.51888 19.5199 7.70272L13.2409 10.5065C12.9029 10.6574 12.6326 10.9281 12.4821 11.2663L9.70142 17.515C9.51799 17.9272 8.92549 17.9048 8.77374 17.4799L3.18091 1.81995Z"
+          stroke="white"
+        />
+      </g>
+      <defs>
+        <filter
+          id="filter0_d_142_54"
+          x="0.64978"
+          y="0.649767"
+          width="21.6663"
+          height="21.662"
+          filterUnits="userSpaceOnUse"
+          colorInterpolationFilters="sRGB"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset dy="2" />
+          <feGaussianBlur stdDeviation="1" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"
+          />
+          <feBlend
+            mode="normal"
+            in2="BackgroundImageFix"
+            result="effect1_dropShadow_142_54"
+          />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_142_54"
+            result="shape"
+          />
+        </filter>
+      </defs>
     </svg>
   );
 }
